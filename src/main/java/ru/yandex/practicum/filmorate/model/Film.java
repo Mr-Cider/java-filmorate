@@ -12,13 +12,13 @@ import java.time.LocalDate;
  */
 @Data
 public class Film {
-    private final int MAX_SIZE_OF_DESCRIPTION = 200;
+    private final int maxSizeOfDescription = 200;
 
     private long id;
     @NotNull(message = "Названия фильма не может быть пустым")
     @NotBlank(message = "Названия фильма не может быть пустым")
     private String name;
-    @Size(max = MAX_SIZE_OF_DESCRIPTION)
+    @Size(max = maxSizeOfDescription)
     private String description;
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность должна быть положительным числом")

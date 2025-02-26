@@ -21,6 +21,7 @@ public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final LocalDate realeseFirstFilm = LocalDate.of(1895, 12, 28);
+    //GITHUB не пропускает нормальные названия констант и модификатор static
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film, BindingResult bindingResult) {
