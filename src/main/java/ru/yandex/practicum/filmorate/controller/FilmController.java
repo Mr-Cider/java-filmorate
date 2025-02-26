@@ -20,16 +20,16 @@ import java.util.Map;
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
+    private final LocalDate realeseFirstFilm = LocalDate.of(1895, 12, 28);
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film, BindingResult bindingResult) {
         log.info("Добавляем фильм");
         Checkers.checkErrorValidation(bindingResult, log);
         log.trace("Валидация прошла успешно");
-        if (film.getReleaseDate().isBefore(REALESE_FIRST_FILM)) {
+        if (film.getReleaseDate().isBefore(realeseFirstFilm)) {
             log.error("Фильм не может быть выпущен раньше {} ",
-                    REALESE_FIRST_FILM.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                    realeseFirstFilm.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
             throw new ValidationException(HttpStatus.BAD_REQUEST);
         }
         log.debug("Присваиваем id");
@@ -54,9 +54,9 @@ public class FilmController {
             throw new ValidationException(HttpStatus.NOT_FOUND);
         }
 
-        if (film.getReleaseDate().isBefore(REALESE_FIRST_FILM)) {
+        if (film.getReleaseDate().isBefore(realeseFirstFilm)) {
             log.error("Фильм не может быть выпущен раньше {}",
-                    REALESE_FIRST_FILM.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                    realeseFirstFilm.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
             throw new ValidationException(HttpStatus.BAD_REQUEST);
         }
         if (film.getName().isBlank()) {
