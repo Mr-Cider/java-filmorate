@@ -4,10 +4,10 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class AnnotationValidationException extends RuntimeException {
+public class AnnotationValidatorException extends RuntimeException {
     private final List<String> errors;
 
-    public AnnotationValidationException(List<String> errors){
+    public AnnotationValidatorException(List<String> errors) {
         this.errors = errors;
     }
 }

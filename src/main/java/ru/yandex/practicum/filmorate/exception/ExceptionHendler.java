@@ -9,8 +9,8 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class ExceptionHendler {
 
-    @ExceptionHandler(AnnotationValidationException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(AnnotationValidationException e, WebRequest request) {
+    @ExceptionHandler(AnnotationValidatorException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(AnnotationValidatorException e, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request",
                 request.getDescription(false).replace("uri", ""));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
