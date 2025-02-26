@@ -12,7 +12,7 @@ import java.time.LocalDate;
  */
 @Data
 public class Film {
-    private static final int MAX_SIZE_OF_DESCRIPTION = 200;
+    private final int MAX_SIZE_OF_DESCRIPTION = 200;
 
     private long id;
     @NotNull(message = "Названия фильма не может быть пустым")

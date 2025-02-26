@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final static LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
+    private final LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
     private final Map<Long, Film> films = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
 
@@ -59,12 +59,14 @@ public class FilmController {
                     REALESE_FIRST_FILM.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
             throw new ValidationException(HttpStatus.BAD_REQUEST);
         }
-        if(film.getName().isBlank()) {
+        if (film.getName().isBlank()) {
             film.setName(films.get(film.getId()).getName());
         }
+
         if (film.getDescription().isBlank()) {
             film.setDescription(films.get(film.getId()).getDescription());
         }
+
         log.debug("Обновляем фильм в базе");
         films.put(film.getId(), film);
         log.info("Фильм обновлен");
