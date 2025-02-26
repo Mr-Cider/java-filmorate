@@ -18,9 +18,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
     private final Map<Long, Film> films = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(FilmController.class);
+    private final LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film, BindingResult bindingResult) {
