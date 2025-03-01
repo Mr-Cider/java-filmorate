@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -24,7 +22,7 @@ import java.util.Map;
 @Slf4j
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
-    private final static LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
+    private static final LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
     //GITHUB не пропускает нормальные названия констант и модификатор static
 
     @PostMapping

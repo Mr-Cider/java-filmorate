@@ -15,13 +15,13 @@ import java.time.LocalDate;
  */
 @Data
 public class Film {
-    private final int maxSizeOfDescription = 200;
+    private static final int MAX_SIZE_OF_DESCRIPTION = 200;
 
     @NotNull(groups = UpdateValidation.class)
     private long id;
     @NotBlank(groups = {CreateValidation.class, UpdateValidation.class}, message = "Названия фильма не может быть пустым")
     private String name;
-    @Size(groups = {CreateValidation.class, UpdateValidation.class}, max = maxSizeOfDescription)
+    @Size(groups = {CreateValidation.class, UpdateValidation.class}, max = MAX_SIZE_OF_DESCRIPTION)
     private String description;
     private LocalDate releaseDate;
     @Positive(groups = {CreateValidation.class, UpdateValidation.class}, message = "Продолжительность должна быть положительным числом")
