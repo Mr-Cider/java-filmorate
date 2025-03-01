@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.service.CreateValidation;
+import ru.yandex.practicum.filmorate.service.UpdateValidation;
+
 import java.time.LocalDate;
 
 /**
@@ -14,13 +17,13 @@ import java.time.LocalDate;
 public class Film {
     private final int maxSizeOfDescription = 200;
 
+    @NotNull(groups = UpdateValidation.class)
     private long id;
-    @NotNull(message = "Названия фильма не может быть пустым")
-    @NotBlank(message = "Названия фильма не может быть пустым")
+    @NotBlank(groups = {CreateValidation.class, UpdateValidation.class}, message = "Названия фильма не может быть пустым")
     private String name;
-    @Size(max = maxSizeOfDescription)
+    @Size(groups = {CreateValidation.class, UpdateValidation.class}, max = maxSizeOfDescription)
     private String description;
     private LocalDate releaseDate;
-    @Positive(message = "Продолжительность должна быть положительным числом")
+    @Positive(groups = {CreateValidation.class, UpdateValidation.class}, message = "Продолжительность должна быть положительным числом")
     private int duration;
 }

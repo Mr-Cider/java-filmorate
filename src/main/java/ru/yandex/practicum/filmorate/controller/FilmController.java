@@ -1,13 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.CreateValidation;
+import ru.yandex.practicum.filmorate.service.UpdateValidation;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,22 +21,18 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
+@Slf4j
 public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final LocalDate realeseFirstFilm = LocalDate.of(1895, 12, 28);
+    private final static LocalDate REALESE_FIRST_FILM = LocalDate.of(1895, 12, 28);
     //GITHUB не пропускает нормальные названия констант и модификатор static
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film, BindingResult bindingResult) {
+    public Film createFilm(@Validated(CreateValidation.class) @RequestBody Film film, BindingResult bindingResult) {
         log.info("Добавляем фильм");
         Checkers.checkErrorValidation(bindingResult, log);
         log.trace("Валидация прошла успешно");
-        if (film.getReleaseDate().isBefore(realeseFirstFilm)) {
-            log.error("Фильм не может быть выпущен раньше {} ",
-                    realeseFirstFilm.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-            throw new ValidationException(HttpStatus.BAD_REQUEST);
-        }
+        checkRealeseFilm(film);
         log.debug("Присваиваем id");
         film.setId(getNextId());
         log.debug("Добавляем фильм в базу");
@@ -47,23 +47,17 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film, BindingResult bindingResult) {
+    public Film updateFilm(@Validated(UpdateValidation.class) @RequestBody Film film, BindingResult bindingResult) {
         log.debug("Обновляем фильм");
         Checkers.checkErrorValidation(bindingResult, log);
         if (!(films.containsKey(film.getId()))) {
             log.error("ID фильма не найден");
             throw new ValidationException(HttpStatus.NOT_FOUND);
         }
-
-        if (film.getReleaseDate().isBefore(realeseFirstFilm)) {
-            log.error("Фильм не может быть выпущен раньше {}",
-                    realeseFirstFilm.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-            throw new ValidationException(HttpStatus.BAD_REQUEST);
-        }
+        checkRealeseFilm(film);
         if (film.getName().isBlank()) {
             film.setName(films.get(film.getId()).getName());
         }
-
         if (film.getDescription().isBlank()) {
             film.setDescription(films.get(film.getId()).getDescription());
         }
@@ -72,6 +66,14 @@ public class FilmController {
         films.put(film.getId(), film);
         log.info("Фильм обновлен");
         return film;
+    }
+
+    private void checkRealeseFilm(Film film) {
+        if (film.getReleaseDate().isBefore(REALESE_FIRST_FILM)) {
+            log.error("Фильм не может быть выпущен раньше {}",
+                    REALESE_FIRST_FILM.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+            throw new ValidationException(HttpStatus.BAD_REQUEST);
+        }
     }
 
     private long getNextId() {

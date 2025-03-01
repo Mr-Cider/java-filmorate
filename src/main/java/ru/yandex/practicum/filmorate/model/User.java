@@ -1,25 +1,24 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.service.CreateValidation;
 import ru.yandex.practicum.filmorate.service.NoSpace;
+import ru.yandex.practicum.filmorate.service.UpdateValidation;
 
 import java.time.LocalDate;
 
 @Data
 public class User {
+    @NotNull(groups = UpdateValidation.class, message = "Нужно ввести id")
     private long id;
-    @NotNull(message = "Email не может быть пустым")
-    @Email(message = "Некорректный формат Email")
+    @NotNull(groups = CreateValidation.class, message = "Email не может быть пустым")
+    @Email(groups = {CreateValidation.class, UpdateValidation.class}, message = "Некорректный формат Email")
     private String email;
-    @NotNull(message = "Логин не может быть пустым")
-    @NotBlank(message = "Логин не может быть пустым")
-    @NoSpace(message = "Поле не должно содержать пробелов")
+    @NotBlank(groups = CreateValidation.class, message = "Логин не может быть пустым")
+    @NoSpace(groups = {CreateValidation.class, UpdateValidation.class}, message = "Поле не должно содержать пробелов")
     private String login;
     private String name;
-    @Past(message = "Дата рождения не может быть раньше текущей")
+    @PastOrPresent(groups = {CreateValidation.class, UpdateValidation.class}, message = "Дата рождения не может быть раньше текущей")
     private LocalDate birthday;
 }

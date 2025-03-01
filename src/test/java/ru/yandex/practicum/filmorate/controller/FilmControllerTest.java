@@ -185,6 +185,7 @@ public class FilmControllerTest {
         film2.setDescription("New Description");
         film2.setReleaseDate(LocalDate.of(2025, 1, 1));
         film2.setDuration(200);
+        System.out.println(film2.toString());
         HttpEntity<Film> entity = new HttpEntity<>(film2);
         ResponseEntity<Film> updateResponse = restTemplate.exchange(url, HttpMethod.PUT, entity, Film.class);
         assertEquals(HttpStatus.BAD_REQUEST, updateResponse.getStatusCode());
