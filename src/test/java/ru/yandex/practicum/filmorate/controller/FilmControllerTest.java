@@ -201,7 +201,7 @@ public class FilmControllerTest {
         ResponseEntity<Film> response = restTemplate.postForEntity(url, film, Film.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Film film2 = new Film();
-        film2.setId(998l);
+        film2.setId(998L);
         film2.setName("UpdateName");
         film2.setDescription("UpdateDescription");
         film2.setReleaseDate(LocalDate.of(2025, 1, 1));
