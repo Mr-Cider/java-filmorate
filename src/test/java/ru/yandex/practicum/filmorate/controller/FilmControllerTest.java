@@ -41,6 +41,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2025, 1, 1));
         film.setDuration(100);
         ResponseEntity<Film> response = restTemplate.postForEntity(url, film, Film.class);
+        System.out.println(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Name", response.getBody().getName());
     }
@@ -200,7 +201,7 @@ public class FilmControllerTest {
         ResponseEntity<Film> response = restTemplate.postForEntity(url, film, Film.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Film film2 = new Film();
-        film2.setId(998);
+        film2.setId(998l);
         film2.setName("UpdateName");
         film2.setDescription("UpdateDescription");
         film2.setReleaseDate(LocalDate.of(2025, 1, 1));
