@@ -14,10 +14,6 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    public User getUser(Long userId) {
-        return userStorage.getUser(userId);
-    }
-
     public User createUser(User user) {
         checkName(user);
         user.setId(getNextId());
