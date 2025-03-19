@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -22,49 +23,42 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User createUser(User user) {
-        log.trace("Добавляем пользователя");
-        checkName(user);
-        log.trace("Присваиваем id пользователю");
-        user.setId(getNextId());
-        log.trace("Добавляем пользователя в базу");
+    public void addOrUpdateUser(User user) {
         users.put(user.getId(), user);
-        return user;
     }
 
     @Override
     public List<User> getUsers() {
-        log.trace("Получаем список пользователей");
         return new ArrayList<>(users.values());
     }
 
     @Override
-    public User updateUser(User user) {
-        log.trace("Обновляем пользователя");
-        checkName(user);
-        if (!(users.containsKey(user.getId()))) {
-            log.error("Id пользователя не найден");
-            throw new NotFoundException("Id пользователя не найден");
+    public List<Long> getIds() {
+        return new ArrayList<>(users.keySet());
+    }
+
+    @Override
+    public List<User> getCommonFriends(long userId, long friendId) {
+        List<User> userFriends = getFriends(userId);
+        List<User> friendsFriends = getFriends(friendId);
+        return userFriends.stream()
+                .filter(friendsFriends::contains)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> getFriends(long userId) {
+        User user = checkUser(userId);
+        return user.getFriendsIds().stream()
+                .map(users::get)
+                .collect(Collectors.toList());
+    }
+
+    private User checkUser(long userId) {
+        User user = users.get(userId);
+        if (!users.containsKey(userId)) {
+            throw new NotFoundException("Пользователь с id " + userId + "не найден.");
         }
-        log.trace("Обновляем пользователя в базе");
-        users.put(user.getId(), user);
         return user;
-    }
-
-    private void checkName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.debug("Пользователь не ввёл имя. Имя = Логин");
-        }
-    }
-
-    private long getNextId() {
-        log.trace("Присвоение id");
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 }

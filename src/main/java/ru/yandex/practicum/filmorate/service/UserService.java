@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,32 @@ public class UserService {
 
     private final UserStorage userStorage;
 
+    //========
+    public User getUser(Long userId) {
+        return userStorage.getUser(userId);
+    }
+
+    public User createUser(User user) {
+        checkName(user);
+        user.setId(getNextId());
+        userStorage.addOrUpdateUser(user);
+        return user;
+    }
+
+    public List<User> getUsers() {
+        return userStorage.getUsers();
+    }
+
+    public User updateUser(User user) {
+        checkName(user);
+        if (userStorage.getUser(user.getId()) == null) {
+            throw new NotFoundException("Id пользователя не найден");
+        }
+        userStorage.addOrUpdateUser(user);
+        return user;
+    }
+
+    //========
     public void addFriend(long userId, long friendId) {
         User user = checkUser(userId);
         User friend = checkUser(friendId);
@@ -30,18 +57,11 @@ public class UserService {
     }
 
     public List<User> getFriends(long userId) {
-        User user = checkUser(userId);
-        return user.getFriendsIds().stream()
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getCommonFriends(long userId, long friendId) {
-        List<User> userFriends = getFriends(userId);
-        List<User> friendsFriends = getFriends(friendId);
-        return userFriends.stream()
-                .filter(friendsFriends::contains)
-                .collect(Collectors.toList());
+        return userStorage.getCommonFriends(userId, friendId);
     }
 
     private User checkUser(long userId) {
@@ -50,5 +70,21 @@ public class UserService {
             throw new NotFoundException("Пользователь с id " + userId + "не найден.");
         }
         return user;
+    }
+
+    private void checkName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
+
+    private long getNextId() {
+        long currentMaxId = userStorage.getIds()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
+        return ++currentMaxId;
     }
 }
