@@ -6,9 +6,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +14,6 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    //========
     public User getUser(Long userId) {
         return userStorage.getUser(userId);
     }
@@ -41,7 +38,6 @@ public class UserService {
         return user;
     }
 
-    //========
     public void addFriend(long userId, long friendId) {
         User user = checkUser(userId);
         User friend = checkUser(friendId);
@@ -77,7 +73,6 @@ public class UserService {
             user.setName(user.getLogin());
         }
     }
-
 
     private long getNextId() {
         long currentMaxId = userStorage.getIds()
