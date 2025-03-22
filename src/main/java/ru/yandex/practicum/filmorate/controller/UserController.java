@@ -1,69 +1,71 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.CreateValidation;
-import ru.yandex.practicum.filmorate.service.UpdateValidation;
+import ru.yandex.practicum.filmorate.customAnnotation.CreateValidation;
+import ru.yandex.practicum.filmorate.customAnnotation.UpdateValidation;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
+
+    private final UserService userService;
 
     @PostMapping
     public User createUser(@Validated(CreateValidation.class) @RequestBody User user, BindingResult bindingResult) {
-        log.trace("Добавляем пользователя");
+        log.info("Создаем пользователя");
         Checkers.checkErrorValidation(bindingResult, log);
-        checkName(user);
-        log.trace("Присваиваем id пользователю");
-        user.setId(getNextId());
-        log.trace("Добавляем пользователя в базу");
-        users.put(user.getId(), user);
-        return user;
+        log.debug("Пользователь создан");
+        return userService.createUser(user);
     }
 
     @GetMapping
     public List<User> getUsers() {
-        log.trace("Получаем список пользователей");
-        return new ArrayList<>(users.values());
+        return userService.getUsers();
     }
 
     @PutMapping
     public User updateUser(@Validated(UpdateValidation.class) @RequestBody User user, BindingResult bindingResult) {
-        log.trace("Обновляем пользователя");
+        log.info("Обновляем пользователя");
         Checkers.checkErrorValidation(bindingResult, log);
-        checkName(user);
-        if (!(users.containsKey(user.getId()))) {
-            log.error("Id пользователя не найден");
-            throw new ValidationException(HttpStatus.NOT_FOUND);
-        }
-        log.trace("Обновляем пользователя в базе");
-        users.put(user.getId(), user);
-        return user;
+        log.debug("Пользователь обновлен");
+        return userService.updateUser(user);
     }
 
-    private void checkName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.debug("Пользователь не ввёл имя. Имя = Логин");
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public List<User> addFriend(@PathVariable long id, @PathVariable long friendId) {
+        log.debug("Добавляем в друзья");
+        userService.addFriend(id, friendId);
+        log.info("Друг добавлен");
+        return new ArrayList<>(userService.getFriends(id));
     }
 
-    private long getNextId() {
-        log.trace("Присвоение id");
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public List<User> removeFriend(@PathVariable long id, @PathVariable long friendId) {
+        log.debug("Удаляем из друзей");
+        userService.removeFriend(id, friendId);
+        log.info("Друг удален");
+        return new ArrayList<>(userService.getFriends(id));
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable long id) {
+        log.debug("Получаем список друзей");
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> commonFriends(@PathVariable long id, @PathVariable long otherId) {
+        log.debug("Получаем список общих друзей");
+        return userService.getCommonFriends(id, otherId);
     }
 }
