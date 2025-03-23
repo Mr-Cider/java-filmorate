@@ -15,6 +15,7 @@ public class User {
     @NotNull(groups = UpdateValidation.class, message = "Нужно ввести id")
     private long id;
     private Set<Long> friendsIds = new HashSet<>();
+    private Set<Long> friendsRequestIds = new HashSet<>();
     @NotNull(groups = CreateValidation.class, message = "Email не может быть пустым")
     @Email(groups = {CreateValidation.class, UpdateValidation.class}, message = "Некорректный формат Email")
     private String email;
@@ -24,6 +25,7 @@ public class User {
     private String name;
     @PastOrPresent(groups = {CreateValidation.class, UpdateValidation.class}, message = "Дата рождения не может быть раньше текущей")
     private LocalDate birthday;
+
 
     public void addFriend(Long id) {
         friendsIds.add(id);
