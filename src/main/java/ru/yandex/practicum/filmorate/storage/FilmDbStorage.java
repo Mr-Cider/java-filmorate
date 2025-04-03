@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.dto.GenreDto;
 import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Repository
 public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String find_all_query = "SELECT * FROM films";
     private static final String find_all_film_id_query = "SELECT film_id FROM films";

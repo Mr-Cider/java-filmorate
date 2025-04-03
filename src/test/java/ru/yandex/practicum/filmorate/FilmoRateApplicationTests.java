@@ -3,25 +3,18 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.mapper.UserRowMapper;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({UserDbStorage.class, UserRowMapper.class})
-@ContextConfiguration(classes = FilmorateApplication.class)
-@ComponentScan(basePackages = {"ru.yandex.practicum.filmorate"})
-public class FilmorateApplicationTests {
+@SpringBootTest
+@AutoConfigureTestDatabase
+public class FilmoRateApplicationTests {
 
     @Autowired
     private UserDbStorage userStorage;
