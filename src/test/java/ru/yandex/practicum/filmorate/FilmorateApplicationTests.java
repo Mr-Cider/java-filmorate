@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.UserRowMapper;
@@ -17,13 +19,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({UserDbStorage.class, UserRowMapper.class})
-class FilmorateApplicationTests {
-    private final UserDbStorage userStorage;
+@ContextConfiguration(classes = FilmorateApplication.class)
+@ComponentScan(basePackages = {"ru.yandex.practicum.filmorate"})
+public class FilmorateApplicationTests {
 
     @Autowired
-    public FilmorateApplicationTests(UserDbStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private UserDbStorage userStorage;
 
     @Test
     public void testCreateAndFindUserById() {
