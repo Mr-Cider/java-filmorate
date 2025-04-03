@@ -1,21 +1,23 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.customAnnotation.CreateValidation;
 import ru.yandex.practicum.filmorate.customAnnotation.NoSpace;
 import ru.yandex.practicum.filmorate.customAnnotation.UpdateValidation;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @NotNull(groups = UpdateValidation.class, message = "Нужно ввести id")
-    private long id;
-    private Set<Long> friendsIds = new HashSet<>();
-    private Set<Long> friendsRequestIds = new HashSet<>();
+    private Long id;
     @NotNull(groups = CreateValidation.class, message = "Email не может быть пустым")
     @Email(groups = {CreateValidation.class, UpdateValidation.class}, message = "Некорректный формат Email")
     private String email;
@@ -25,13 +27,4 @@ public class User {
     private String name;
     @PastOrPresent(groups = {CreateValidation.class, UpdateValidation.class}, message = "Дата рождения не может быть раньше текущей")
     private LocalDate birthday;
-
-
-    public void addFriend(Long id) {
-        friendsIds.add(id);
-    }
-
-    public void removeFriend(Long id) {
-        friendsIds.remove(id);
-    }
 }

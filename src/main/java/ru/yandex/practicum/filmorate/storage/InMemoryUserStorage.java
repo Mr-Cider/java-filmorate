@@ -1,30 +1,62 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Repository
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
 
+    private final Map<Long, Map<Long, Boolean>> friends = new HashMap<>();
+
     @Override
-    public User getUser(Long userId) {
-        return users.get(userId);
+    public Optional<User> getUser(Long userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     @Override
-    public void addOrUpdateUser(User user) {
+    public User addUser(User user) {
         users.put(user.getId(), user);
+        return user;
+    }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+        friends.computeIfAbsent(userId, k -> new HashMap<>())
+                .put(friendId, false);
+    }
+
+    @Override
+    public void acceptFriend(Long userId, Long friendId) {
+        friends.computeIfAbsent(userId, k -> new HashMap<>())
+                .put(friendId, true);
+        }
+
+    @Override
+    public void removeFriend(Long userId, Long friendId) {
+            friends.get(userId).remove(friendId);
+        }
+
+
+    @Override
+    public List<User> getFriendsRequest(Long userId) {
+        return friends.getOrDefault(userId, Collections.emptyMap())
+                .entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(Map.Entry::getKey)
+                .map(users::get).filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public User updateUser(User user) {
+        users.put(user.getId(), user);
+        return user;
     }
 
     @Override
@@ -49,9 +81,19 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getFriends(long userId) {
         User user = checkUser(userId);
-        return user.getFriendsIds().stream()
-                .map(users::get)
+        return friends.getOrDefault(userId, Collections.emptyMap())
+                .entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(users::get).filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    public Long generateId() {
+        return getIds()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
     }
 
     private User checkUser(long userId) {
@@ -61,4 +103,6 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return user;
     }
+
+
 }

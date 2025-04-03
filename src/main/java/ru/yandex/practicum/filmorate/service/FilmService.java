@@ -1,93 +1,130 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dto.GenreDto;
+import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
+import ru.yandex.practicum.filmorate.storage.dto.NewFilmRequest;
+import ru.yandex.practicum.filmorate.storage.dto.UpdateFilmRequest;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-
     private final FilmStorage filmStorage;
-
     private final UserStorage userStorage;
+    private static final Long DEFAULT_MPA_ID = 1L;
 
-    public Film createFilm(Film film) {
-        log.info("Добавляем фильм");
-        film.setId(getNextId());
-        log.debug("Добавляем фильм в базу");
-        filmStorage.addOrUpdateFilm(film);
-        log.info("Фильм добавлен в базу");
-        return film;
+    public Film createFilm(NewFilmRequest request) {
+        validateMpa(request.getMpa());
+        Film film = buildFilmFromRequest(request);
+        film.setId(filmStorage.generateId());
+        return filmStorage.addFilm(film);
+    }
+
+    public Film updateFilm(UpdateFilmRequest request) {
+        Film existingFilm = getFilmOrThrow(request.getId());
+        Film updatedFilm = buildFilmFromRequest(request, existingFilm);
+        return filmStorage.updateFilm(updatedFilm);
     }
 
     public List<Film> getFilms() {
         return filmStorage.getFilms();
     }
 
-    public Film updateFilm(Film film) {
-        log.debug("Обновляем фильм");
-        if (filmStorage.getFilm(film.getId()) == null) {
-            log.error("ID фильма не найден");
-            throw new NotFoundException("ID фильма не найден");
-        }
-        if (film.getName().isBlank()) {
-            film.setName(filmStorage.getFilm(film.getId()).getName());
-        }
-        if (film.getDescription().isBlank()) {
-            film.setDescription(filmStorage.getFilm(film.getId()).getDescription());
-        }
-        filmStorage.addOrUpdateFilm(film);
-        return film;
-    }
-
-    public long giveLike(Long filmId, Long userId) {
-        Film film = checkFilm(filmId);
-        checkUser(userId);
-        film.addUserLike(userId);
-        return film.getListUsersLikeId().size();
-    }
-
-    public long removeLike(Long filmId, Long userId) {
-        Film film = checkFilm(filmId);
-        checkUser(userId);
-        film.removeUserLike(userId);
-        return film.getListUsersLikeId().size();
+    public Optional<Film> getFilm(Long id) {
+        return filmStorage.getFilm(id);
     }
 
     public List<Film> getTopFilms(Integer count) {
         return filmStorage.getTopFilms(count);
     }
 
-    private long getNextId() {
-        log.trace("Присвоение id");
-        long currentMaxId = filmStorage.getIds()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    public void addLike(Long filmId, Long userId) {
+        validateFilmAndUserExist(filmId, userId);
+        filmStorage.addLike(filmId, userId);
     }
 
-    private Film checkFilm(long filmId) {
-        Film film = filmStorage.getFilm(filmId);
-        if (film == null) {
-            throw new NotFoundException("Фильм с id " + filmId + " не найден.");
-        }
-        return film;
+    public void removeLike(Long filmId, Long userId) {
+        validateFilmAndUserExist(filmId, userId);
+        filmStorage.removeLike(filmId, userId);
     }
 
-    private void checkUser(long userId) {
-        if (userStorage.getUser(userId) == null) {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден.");
+    public List<GenreDto> getAllGenres() {
+        return filmStorage.getAllGenres();
+    }
+
+    public GenreDto getGenreById(Long id) {
+        return filmStorage.getGenreById(id)
+                .orElseThrow(() -> new NotFoundException("Жанр с id " + id + " не найден"));
+    }
+
+    public List<MpaDto> getAllMpa() {
+        return filmStorage.getAllMpa();
+    }
+
+    public MpaDto getMpaById(Long id) {
+        return filmStorage.getMpaById(id)
+                .orElseThrow(() -> new NotFoundException("Рейтинг MPA с id " + id + " не найден"));
+    }
+
+    private Film buildFilmFromRequest(NewFilmRequest request) {
+        return Film.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .releaseDate(request.getReleaseDate())
+                .duration(request.getDuration())
+                .mpa(getMpaIdFromRequest(request))
+                .genres(request.getGenres())
+                .build();
+    }
+
+    private Film buildFilmFromRequest(UpdateFilmRequest request, Film existingFilm) {
+        return Film.builder()
+                .id(request.getId())
+                .name(request.getName())
+                .description(request.getDescription())
+                .releaseDate(request.getReleaseDate())
+                .duration(request.getDuration())
+                .mpa(getMpaIdFromRequest(request, existingFilm))
+                .rateMPA(Film.RateMPA.getById(getMpaIdFromRequest(request, existingFilm)))
+                .genres(request.getGenres() != null ? request.getGenres() : existingFilm.getGenres())
+                .build();
+    }
+
+    private Long getMpaIdFromRequest(NewFilmRequest request) {
+        return request.getMpa() != null ? request.getMpa().getId() : DEFAULT_MPA_ID;
+    }
+
+    private Long getMpaIdFromRequest(UpdateFilmRequest request, Film existingFilm) {
+        return request.getMpa() != null ? request.getMpa().getId() : existingFilm.getMpa();
+    }
+
+    private void validateMpa(MpaDto mpa) {
+        if (mpa != null) {
+            getMpaById(mpa.getId());
         }
+    }
+
+    private Film getFilmOrThrow(Long id) {
+        return filmStorage.getFilm(id)
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
+    }
+
+    private void validateUserExists(Long id) {
+        if (userStorage.getUser(id).isEmpty()) {
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
+        }
+    }
+
+    private void validateFilmAndUserExist(Long filmId, Long userId) {
+        getFilmOrThrow(filmId);
+        validateUserExists(userId);
     }
 }
-
