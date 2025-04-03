@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.model.Film;
 import java.util.*;
 import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.storage.dto.GenreDto;
 import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
-
 
 public class InMemoryFilmStorage implements FilmStorage {
 
