@@ -1,8 +1,8 @@
-INSERT INTO rate (name) VALUES ('G');
-INSERT INTO rate (name) VALUES ('PG');
-INSERT INTO rate (name) VALUES ('PG-13');
-INSERT INTO rate (name) VALUES ('R');
-INSERT INTO rate (name) VALUES ('NC-17');
+INSERT INTO rate (rate_id, name) VALUES (1, 'G');
+INSERT INTO rate (rate_id, name) VALUES (2, 'PG');
+INSERT INTO rate (rate_id, name) VALUES (3, 'PG-13');
+INSERT INTO rate (rate_id, name) VALUES (4, 'R');
+INSERT INTO rate (rate_id, name) VALUES (5, 'NC-17');
 
 INSERT INTO genre (name) VALUES ('Комедия');
 INSERT INTO genre (name) VALUES ('Драма');

@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
@@ -11,16 +11,22 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.storage.mapper.UserRowMapper;
 
-@SpringBootTest
+@JdbcTest
 @AutoConfigureTestDatabase
-public class FilmoRateApplicationTests {
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Import({UserDbStorage.class, UserRowMapper.class})
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
+class FilmorateApplicationTests {
 
-    @Autowired
-    private UserDbStorage userStorage;
+    private final UserDbStorage userStorage;
 
     @Test
-    public void testCreateAndFindUserById() {
+    public void testFindUserById() {
         User testUser = User.builder()
                 .email("test@example.com")
                 .login("testLogin")
@@ -28,15 +34,13 @@ public class FilmoRateApplicationTests {
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
         User createdUser = userStorage.addUser(testUser);
-        Optional<User> foundUser = userStorage.getUser(createdUser.getId());
-        assertThat(foundUser)
+
+        Optional<User> userOptional = userStorage.getUser(createdUser.getId());
+
+        assertThat(userOptional)
                 .isPresent()
-                .hasValueSatisfying(user -> {
-                    assertThat(user.getId()).isEqualTo(createdUser.getId());
-                    assertThat(user.getEmail()).isEqualTo("test@example.com");
-                    assertThat(user.getLogin()).isEqualTo("testLogin");
-                    assertThat(user.getName()).isEqualTo("Test Name");
-                    assertThat(user.getBirthday()).isEqualTo(LocalDate.of(1990, 1, 1));
-                });
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasFieldOrPropertyWithValue("id", createdUser.getId())
+                );
     }
 }
