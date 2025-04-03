@@ -1,0 +1,24 @@
+name: Java CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '22.0.1'
+          distribution: 'temurin'
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Start application
+        run: |
+          java -jar target/your-app.jar &
+          echo "Waiting for app to start..."
+          sleep 10
+          curl -f http://localhost:8080/actuator/health || exit 1
+      - name: Run tests
+        run: mvn test
