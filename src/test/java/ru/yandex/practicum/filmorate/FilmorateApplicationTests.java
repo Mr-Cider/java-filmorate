@@ -17,11 +17,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({UserDbStorage.class, UserRowMapper.class})
-class FilmoRateApplicationTests {
+class FilmorateApplicationTests {
     private final UserDbStorage userStorage;
 
     @Autowired
-    public FilmoRateApplicationTests(UserDbStorage userStorage) {
+    public FilmorateApplicationTests(UserDbStorage userStorage) {
         this.userStorage = userStorage;
     }
 
