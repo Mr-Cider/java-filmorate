@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.storage.dto.GenreDto;
 import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
 
 
-@Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
@@ -39,22 +38,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getFilm(Long id) {
-//        Optional<Film> film = Optional.ofNullable(films.get(id));
-//        film.ifPresent(f -> {
-//            Set<Long> genreIds = filmGenres.getOrDefault(f.getId(), Collections.emptySet());
-//            f.setGenres(new HashSet<>(genreIds));
-//        });
         return Optional.of(films.get(id));
-
     }
 
     @Override
     public Film addFilm(Film film) {
-//        film.setId(currentId++);
-//        films.put(film.getId(), film);
-//        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-//            filmGenres.put(film.getId(), new HashSet<>(film.getGenres()));
-
         return film;
     }
 

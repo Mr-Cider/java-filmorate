@@ -1,7 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

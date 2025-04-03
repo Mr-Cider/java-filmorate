@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 
 public class FilmRowMapper implements RowMapper<Film> {
     @Override
