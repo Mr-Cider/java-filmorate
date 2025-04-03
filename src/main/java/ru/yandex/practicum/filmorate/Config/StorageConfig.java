@@ -17,13 +17,12 @@ import javax.sql.DataSource;
 public class StorageConfig {
 
     @Bean
-    @ConditionalOnProperty(name = "storage.type", havingValue = "db")
-    public FilmStorage filmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
-        return new FilmDbStorage(jdbc, mapper);
+    public FilmDbStorage filmDbStorage(JdbcTemplate jdbcTemplate,
+                                       RowMapper<Film> filmRowMapper) {
+        return new FilmDbStorage(jdbcTemplate, filmRowMapper);
     }
 
     @Bean
-    @ConditionalOnProperty(name = "storage.type", havingValue = "db")
     public UserStorage userDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         return new UserDbStorage(jdbc, mapper);
     }

@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Repository
 public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
     private static final String find_all_query = "SELECT * FROM films";
     private static final String find_all_film_id_query = "SELECT film_id FROM films";
