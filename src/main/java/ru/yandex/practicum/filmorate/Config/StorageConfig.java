@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.Config;
 
-import org.springframework.boot.jdbc.DataSourceBuilder;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,7 +20,12 @@ public class StorageConfig {
 
     @Bean
     public DataSource dataSource() {
-        return DataSourceBuilder.create().build();
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl("jdbc:h2:file:./db/filmorate;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE");
+        dataSource.setUsername("SA");
+        dataSource.setPassword("password");
+        dataSource.setDriverClassName("org.h2.Driver");
+        return dataSource;
     }
 
     @Bean
