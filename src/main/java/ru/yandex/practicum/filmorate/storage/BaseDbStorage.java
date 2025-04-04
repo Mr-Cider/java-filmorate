@@ -53,11 +53,10 @@ public class BaseDbStorage<T> {
             }
             return ps;
         }, keyHolder);
-
-        Long id = keyHolder.getKeyAs(Long.class);
-        if (id == null) {
+        Number key = keyHolder.getKey();
+        if (key == null) {
             throw new InternalServerException("Не удалось сохранить данные");
         }
-        return id;
+        return key.longValue();
     }
 }
