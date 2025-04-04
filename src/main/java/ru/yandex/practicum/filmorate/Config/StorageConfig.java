@@ -1,3 +1,5 @@
+package ru.yandex.practicum.filmorate.Config;
+
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +29,14 @@ public class StorageConfig {
     }
 
     @Bean
-    public FilmDbStorage filmDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Film> filmRowMapper) {
+    public FilmDbStorage filmDbStorage(JdbcTemplate jdbcTemplate,
+                                       RowMapper<Film> filmRowMapper) {
         return new FilmDbStorage(jdbcTemplate, filmRowMapper);
     }
 
     @Bean
-    public UserStorage userDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
+    public UserStorage userDbStorage(JdbcTemplate jdbc,
+                                     RowMapper<User> mapper) {
         return new UserDbStorage(jdbc, mapper);
     }
 
