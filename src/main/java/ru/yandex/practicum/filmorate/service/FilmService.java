@@ -4,15 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.RateMPA;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.dto.GenreDto;
-import ru.yandex.practicum.filmorate.storage.dto.MpaDto;
-import ru.yandex.practicum.filmorate.storage.dto.NewFilmRequest;
-import ru.yandex.practicum.filmorate.storage.dto.UpdateFilmRequest;
+import ru.yandex.practicum.filmorate.storage.dto.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,29 +22,35 @@ public class FilmService {
     private final UserStorage userStorage;
     private static final Long DEFAULT_MPA_ID = 1L;
 
-    public Film createFilm(NewFilmRequest request) {
+    public FilmDto createFilm(NewFilmRequest request) {
         validateMpa(request.getMpa());
         Film film = buildFilmFromRequest(request);
-        film.setId(filmStorage.generateId());
-        return filmStorage.addFilm(film);
+        Film createdFilm = filmStorage.addFilm(film);
+        return convertToDto(createdFilm);
     }
 
-    public Film updateFilm(UpdateFilmRequest request) {
+    public FilmDto updateFilm(UpdateFilmRequest request) {
         Film existingFilm = getFilmOrThrow(request.getId());
         Film updatedFilm = buildFilmFromRequest(request, existingFilm);
-        return filmStorage.updateFilm(updatedFilm);
+        Film savedFilm = filmStorage.updateFilm(updatedFilm);
+        return convertToDto(savedFilm);
     }
 
-    public List<Film> getFilms() {
-        return filmStorage.getFilms();
+    public List<FilmDto> getFilms() {
+        return filmStorage.getFilms().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Film> getFilm(Long id) {
-        return filmStorage.getFilm(id);
+    public Optional<FilmDto> getFilm(Long id) {
+        return filmStorage.getFilm(id)
+                .map(this::convertToDto);
     }
 
-    public List<Film> getTopFilms(Integer count) {
-        return filmStorage.getTopFilms(count);
+    public List<FilmDto> getTopFilms(Integer count) {
+        return filmStorage.getTopFilms(count).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     public void addLike(Long filmId, Long userId) {
@@ -74,6 +81,18 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException("Рейтинг MPA с id " + id + " не найден"));
     }
 
+    private FilmDto convertToDto(Film film) {
+        return FilmDto.builder()
+                .id(film.getId())
+                .name(film.getName())
+                .description(film.getDescription())
+                .releaseDate(film.getReleaseDate())
+                .duration(film.getDuration())
+                .genres(film.getGenres())
+                .mpa(film.getMpaForResponse())
+                .build();
+    }
+
     private Film buildFilmFromRequest(NewFilmRequest request) {
         return Film.builder()
                 .name(request.getName())
@@ -81,7 +100,7 @@ public class FilmService {
                 .releaseDate(request.getReleaseDate())
                 .duration(request.getDuration())
                 .mpa(getMpaIdFromRequest(request))
-                .genres(request.getGenres())
+                .genres(toGenreList(request.getGenres()))
                 .build();
     }
 
@@ -93,9 +112,22 @@ public class FilmService {
                 .releaseDate(request.getReleaseDate())
                 .duration(request.getDuration())
                 .mpa(getMpaIdFromRequest(request, existingFilm))
-                .rateMPA(Film.RateMPA.getById(getMpaIdFromRequest(request, existingFilm)))
-                .genres(request.getGenres() != null ? request.getGenres() : existingFilm.getGenres())
+                .rateMPA(RateMPA.getById(getMpaIdFromRequest(request, existingFilm)))
+                .genres(request.getGenres() != null ?
+                        toGenreList(request.getGenres()) :
+                        existingFilm.getGenres())
                 .build();
+    }
+
+    private List<Genre> toGenreList(List<GenreDto> dtos) {
+        if (dtos == null) {
+            return null;
+        }
+        List<Genre> result = new ArrayList<>();
+        for (GenreDto dto : dtos) {
+            result.add(new Genre(dto.getId(), dto.getName()));
+        }
+        return result;
     }
 
     private Long getMpaIdFromRequest(NewFilmRequest request) {

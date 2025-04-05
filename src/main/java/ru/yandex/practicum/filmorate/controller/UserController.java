@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.storage.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.storage.dto.UserDto;
 
 import java.util.*;
 
@@ -21,24 +22,24 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public User createUser(@Valid @RequestBody NewUserRequest request, BindingResult bindingResult) {
+    public UserDto createUser(@Valid @RequestBody NewUserRequest request, BindingResult bindingResult) {
         log.info("Создаем пользователя");
         Checkers.checkErrorValidation(bindingResult, log);
-        User user = userService.createUser(request);
+        UserDto user = userService.createUser(request);
         log.debug("Пользователь создан c ID: {}", user.getId());
         return user;
     }
 
     @GetMapping
-    public List<User> getUsers() {
+    public List<UserDto> getUsers() {
         return userService.getUsers();
     }
 
     @PutMapping
-    public User updateUser(@RequestBody UpdateUserRequest request, BindingResult bindingResult) {
+    public UserDto updateUser(@Valid @RequestBody UpdateUserRequest request, BindingResult bindingResult) {
         log.info("Обновляем пользователя c ID: {}", request.getId());
         Checkers.checkErrorValidation(bindingResult, log);
-        User user = userService.updateUser(request);
+        UserDto user = userService.updateUser(request);
         log.debug("Пользователь c ID: {} обновлен", user.getId());
         return user;
     }
@@ -54,12 +55,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable long id) {
+    public List<UserDto> getFriends(@PathVariable long id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> commonFriends(@PathVariable long id, @PathVariable long otherId) {
+    public List<UserDto> commonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 }

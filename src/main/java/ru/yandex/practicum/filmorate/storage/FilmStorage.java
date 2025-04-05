@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface FilmStorage {
 
-    List<Long> getIds();
+    List<Film> getFilms();
 
     Optional<Film> getFilm(Long id);
 
@@ -17,21 +17,19 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    List<Film> getFilms();
-
     List<Film> getTopFilms(Integer count);
 
-    List<MpaDto> getAllMpa();
+    void addLike(Long filmId, Long userId);
 
-    Long generateId();
+    void removeLike(Long filmId, Long userId);
 
     List<GenreDto> getAllGenres();
 
     Optional<GenreDto> getGenreById(Long id);
 
+    List<MpaDto> getAllMpa();
+
     Optional<MpaDto> getMpaById(Long id);
 
-    void addLike(Long filmId, Long userId);
-
-    void removeLike(Long filmId, Long userId);
+    List<Long> getIds();
 }

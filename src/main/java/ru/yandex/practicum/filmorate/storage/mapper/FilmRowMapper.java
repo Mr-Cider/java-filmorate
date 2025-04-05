@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.RateMPA;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +21,7 @@ public class FilmRowMapper implements RowMapper<Film> {
                 .mpa(rs.getLong("rate_id"))
                 .build();
 
-        film.setRateMPA(Film.RateMPA.getById(film.getMpa()));
+        film.setRateMPA(RateMPA.getById(film.getMpa()));
         film.setGenres(new ArrayList<>(new HashSet<>()));
 
         return film;

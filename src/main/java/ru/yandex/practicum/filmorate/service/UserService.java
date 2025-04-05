@@ -9,29 +9,34 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.dto.NewUserRequest;
 import ru.yandex.practicum.filmorate.storage.dto.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.storage.dto.UserDto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
-    public User createUser(NewUserRequest request) {
+    public UserDto createUser(NewUserRequest request) {
         User user = convertToUser(request);
         validateName(user);
-        user.setId(userStorage.generateId());
-        return userStorage.addUser(user);
+        User createdUser = userStorage.addUser(user);
+        return convertToDto(createdUser);
     }
 
-    public List<User> getUsers() {
-        return userStorage.getUsers();
+    public List<UserDto> getUsers() {
+        return userStorage.getUsers().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public User updateUser(UpdateUserRequest request) {
+    public UserDto updateUser(UpdateUserRequest request) {
         User user = getUserOrThrow(request.getId());
         updateUserFields(user, request);
-        return userStorage.updateUser(user);
+        User updatedUser = userStorage.updateUser(user);
+        return convertToDto(updatedUser);
     }
 
     @Transactional
@@ -46,15 +51,19 @@ public class UserService {
         userStorage.removeFriend(userId, friendId);
     }
 
-    public List<User> getFriends(Long userId) {
+    public List<UserDto> getFriends(Long userId) {
         validateUserExists(userId);
-        return userStorage.getFriends(userId);
+        return userStorage.getFriends(userId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public List<User> getCommonFriends(Long userId, Long friendId) {
+    public List<UserDto> getCommonFriends(Long userId, Long friendId) {
         validateUserExists(userId);
         validateUserExists(friendId);
-        return userStorage.getCommonFriends(userId, friendId);
+        return userStorage.getCommonFriends(userId, friendId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private User convertToUser(NewUserRequest request) {
@@ -63,6 +72,16 @@ public class UserService {
                 .login(request.getLogin())
                 .name(request.getName())
                 .birthday(request.getBirthday())
+                .build();
+    }
+
+    private UserDto convertToDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .login(user.getLogin())
+                .name(user.getName())
+                .birthday(user.getBirthday())
                 .build();
     }
 

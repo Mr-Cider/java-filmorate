@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmRowMapper;
 import ru.yandex.practicum.filmorate.storage.mapper.UserRowMapper;
 
@@ -40,7 +39,7 @@ public class StorageConfig {
     }
 
     @Bean
-    public UserStorage userDbStorage(JdbcTemplate jdbc,
+    public UserDbStorage userDbStorage(JdbcTemplate jdbc,
                                      RowMapper<User> mapper) {
         return new UserDbStorage(jdbc, mapper);
     }

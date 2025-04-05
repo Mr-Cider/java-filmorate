@@ -100,9 +100,4 @@ public class UserDbStorage extends BaseDbStorage<User> implements UserStorage {
     public List<User> getFriends(long userId) {
         return findMany(GET_FRIENDS_QUERY, userId);
     }
-
-    @Override
-    public Long generateId() {
-        return null;
-    }
 }
