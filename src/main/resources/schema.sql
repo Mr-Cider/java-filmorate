@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS users;
 
 create table if not exists users (
                                      user_id bigint AUTO_INCREMENT primary key,
-                                     email varchar(500),
+                                     email varchar(500) unique,
                                      login varchar(500),
                                      name varchar(500),
                                      birthday timestamp
