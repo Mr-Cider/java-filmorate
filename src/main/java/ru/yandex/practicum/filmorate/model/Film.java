@@ -33,16 +33,15 @@ public class Film {
     @JsonIgnore
     private transient RateMPA rateMPA;
 
+    @JsonIgnore
+    public RateMPA getMpaRating() {
+        return RateMPA.getById(this.mpa != null ? this.mpa : 1L);
+    }
+
     @JsonProperty("mpa")
-    public Map<String, Object> getMpaForResponse() {
-        if (this.mpa == null) {
-            this.mpa = 1L;
-        }
-        RateMPA rating = RateMPA.getById(this.mpa);
-        return Map.of(
-                "id", this.mpa,
-                "name", rating.getDisplayName()
-        );
+    public Map<String, Object> getMpaAsMap() {
+        RateMPA rating = getMpaRating();
+        return Map.of("id", rating.getId(), "name", rating.getDisplayName());
     }
 
     @JsonIgnore

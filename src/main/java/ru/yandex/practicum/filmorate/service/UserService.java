@@ -18,17 +18,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final DataTransformer dataTransformer;
 
     public UserDto createUser(NewUserRequest request) {
-        User user = convertToUser(request);
+        User user = dataTransformer.convertToUser(request);
         validateName(user);
         User createdUser = userStorage.addUser(user);
-        return convertToDto(createdUser);
+        return dataTransformer.convertToUserDto(createdUser);
     }
+
 
     public List<UserDto> getUsers() {
         return userStorage.getUsers().stream()
-                .map(this::convertToDto)
+                .map(dataTransformer::convertToUserDto)
                 .collect(Collectors.toList());
     }
 
@@ -36,7 +38,7 @@ public class UserService {
         User user = getUserOrThrow(request.getId());
         updateUserFields(user, request);
         User updatedUser = userStorage.updateUser(user);
-        return convertToDto(updatedUser);
+        return dataTransformer.convertToUserDto(updatedUser);
     }
 
     @Transactional
@@ -54,7 +56,7 @@ public class UserService {
     public List<UserDto> getFriends(Long userId) {
         validateUserExists(userId);
         return userStorage.getFriends(userId).stream()
-                .map(this::convertToDto)
+                .map(dataTransformer::convertToUserDto)
                 .collect(Collectors.toList());
     }
 
@@ -62,27 +64,8 @@ public class UserService {
         validateUserExists(userId);
         validateUserExists(friendId);
         return userStorage.getCommonFriends(userId, friendId).stream()
-                .map(this::convertToDto)
+                .map(dataTransformer::convertToUserDto)
                 .collect(Collectors.toList());
-    }
-
-    private User convertToUser(NewUserRequest request) {
-        return User.builder()
-                .email(request.getEmail())
-                .login(request.getLogin())
-                .name(request.getName())
-                .birthday(request.getBirthday())
-                .build();
-    }
-
-    private UserDto convertToDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .login(user.getLogin())
-                .name(user.getName())
-                .birthday(user.getBirthday())
-                .build();
     }
 
     private void validateName(User user) {
