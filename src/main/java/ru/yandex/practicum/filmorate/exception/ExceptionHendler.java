@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,6 +28,13 @@ public class ExceptionHendler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(NotFoundException e, WebRequest request) {
         return new ErrorResponse(e.getMessage(),
+                request.getDescription(false).replace("uri", ""));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDataIntegrityViolation(DataIntegrityViolationException e, WebRequest request) {
+        return new ErrorResponse("Связанная сущность не найдена",
                 request.getDescription(false).replace("uri", ""));
     }
 }
